@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  http1.1:
+    build: ./http1.1
+    ports:
+      - "8081:80"
+
+#  http2:
+#    build: ./http2
+#    ports:
+#      - "8082:80"
+#
+#  http3:
+#    build: ./http3
+#    ports:
+#      - "8083:80"
