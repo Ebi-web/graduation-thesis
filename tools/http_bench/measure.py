@@ -1,78 +1,63 @@
-package main
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import numpy as np
+import time
 
-import (
-	"crypto/tls"
-	"flag"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"time"
 
-	"github.com/quic-go/quic-go/http3"
-)
+def load_website_and_measure(url):
+    try:
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
+        driver = webdriver.Chrome(options=options)
+        start_time = time.time()
 
-func main() {
-	// コマンドラインオプションの定義と解析
-	http1 := flag.Bool("http1.1", false, "Use HTTP/1.1")
-	http2 := flag.Bool("http2", false, "Use HTTP/2")
-	http3Flag := flag.Bool("http3", false, "Use HTTP/3")
-	flag.Parse()
+        try:
+            driver.get(url)
+            WebDriverWait(driver, 10).until(
+                EC.visibility_of_all_elements_located((By.TAG_NAME, "img"))
+            )
+        finally:
+            driver.quit()
 
-	// オプションの確認
-	if (*http1 && *http2) || (*http2 && *http3Flag) || (*http1 && *http3Flag) || (!*http1 && !*http2 && !*http3Flag) {
-		fmt.Println("Error: Specify exactly one of --http1.1, --http2, or --http3")
-		return
-	}
+        return time.time() - start_time, None
+    except Exception as e:
+        return None, e
 
-	// HTTPバージョンに基づいてクライアントを設定
-	var client *http.Client
-	if *http1 {
-		client = &http.Client{}
-	} else if *http2 {
-		client = &http.Client{
-			Transport: &http.Transport{
-				TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
-				ForceAttemptHTTP2: true,
-			},
-		}
-	} else if *http3Flag {
-		client = &http.Client{
-			Transport: &http3.RoundTripper{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-			},
-		}
-	}
 
-	urls := []string{
-		"http://localhost:8081", // ここにHTTP/1.1 URLを置き換えてください
-		//"https://example.com", // ここにHTTP/2 URLを置き換えてください
-		//"https://example.com", // ここにHTTP/3 URLを置き換えてください
-	}
+def calculate_statistics(load_times, errors):
+    load_times_array = np.array([time for time in load_times if time is not None])
+    mean = np.mean(load_times_array)
+    variance = np.var(load_times_array)
+    throughput = len(load_times_array) / np.sum(load_times_array)
+    failures = len(errors)
 
-	for _, url := range urls {
-		measurePerformance(client, url)
-	}
-}
+    print(f"Average Load Time: {mean} seconds")
+    print(f"Variance of Load Time: {variance} seconds^2")
+    print(f"Throughput: {throughput} requests/second")
+    print(f"Number of Failures: {failures}")
 
-func measurePerformance(client *http.Client, url string) {
-	start := time.Now()
-	resp, err := client.Get(url)
-	if err != nil {
-		fmt.Printf("Failed to GET from %s: %v\n", url, err)
-		return
-	}
-	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Printf("Failed to read response body from %s: %v\n", url, err)
-		return
-	}
+def main():
+    test_url = "http://localhost:8081"
+    num_requests = 10
+    num_parallel = 5
 
-	elapsed := time.Since(start)
-	dataSize := len(body)
-	fmt.Printf("URL: %s\n", url)
-	fmt.Printf("Time taken: %v\n", elapsed)
-	fmt.Printf("Data size: %d bytes\n", dataSize)
-	fmt.Printf("Throughput: %f bytes/sec\n", float64(dataSize)/elapsed.Seconds())
-}
+    load_times = []
+    errors = []
+    with ThreadPoolExecutor(max_workers=num_parallel) as executor:
+        future_to_url = {executor.submit(load_website_and_measure, test_url): url for url in range(num_requests)}
+        for future in as_completed(future_to_url):
+            load_time, error = future.result()
+            if load_time is not None:
+                load_times.append(load_time)
+            if error is not None:
+                errors.append(error)
+
+    calculate_statistics(load_times, errors)
+
+
+if __name__ == "__main__":
+    main()
