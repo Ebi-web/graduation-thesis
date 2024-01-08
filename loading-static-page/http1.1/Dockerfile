@@ -1,2 +1,3 @@
 FROM nginx:alpine
-COPY ./html /usr/share/nginx/html
+COPY ./http1.1/html /usr/share/nginx/html
+COPY ./assets/photos /usr/share/nginx/html/photos

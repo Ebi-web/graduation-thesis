@@ -42,8 +42,8 @@ def calculate_statistics(load_times, errors):
 
 def main():
     test_url = "http://localhost:8081"
-    num_requests = 10
-    num_parallel = 5
+    num_requests = 1000
+    num_parallel = 50
 
     load_times = []
     errors = []

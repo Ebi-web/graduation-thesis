@@ -1,17 +1,21 @@
 version: '3'
-
+#実験環境の統一のため全て同じポートを利用している。適宜コメントアウトして利用する。
 services:
   http1.1:
-    build: ./http1.1
+    build:
+        context: .
+        dockerfile: ./http1.1/Dockerfile
     ports:
       - "8081:80"
 
-#  http2:
-#    build: ./http2
-#    ports:
-#      - "8082:80"
-#
+  http2:
+    build:
+        context: .
+        dockerfile: ./http2/Dockerfile
+    ports:
+      - "8082:443"
+
 #  http3:
 #    build: ./http3
 #    ports:
-#      - "8083:80"
+#      - "8083:443"
