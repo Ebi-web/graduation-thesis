@@ -13,6 +13,7 @@ services:
         limits:
           cpus: '0.5'
           memory: 100M
+          pids: 100
 
   http2:
     build:
@@ -26,3 +27,4 @@ services:
         limits:
           cpus: '0.5'
           memory: 100M
+          pids: 100
