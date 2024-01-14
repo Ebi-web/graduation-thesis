@@ -7,6 +7,12 @@ services:
         dockerfile: ./http1.1/Dockerfile
     ports:
       - "8081:80"
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 100M
 
   http2:
     build:
@@ -14,3 +20,9 @@ services:
         dockerfile: ./http2/Dockerfile
     ports:
       - "8082:443"
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 100M
