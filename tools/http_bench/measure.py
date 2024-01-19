@@ -11,6 +11,7 @@ def load_website_and_measure(url):
     try:
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')
+        options.add_argument('--ignore-certificate-errors')
         driver = webdriver.Chrome(options=options)
         start_time = time.time()
 
@@ -41,9 +42,9 @@ def calculate_statistics(load_times, errors):
 
 
 def main():
-    test_url = "http://localhost:8081"
-    num_requests = 1000
-    num_parallel = 50
+    test_url = "https://localhost:8082"
+    num_requests = 10000
+    num_parallel = 100
 
     load_times = []
     errors = []
