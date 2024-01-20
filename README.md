@@ -76,3 +76,8 @@ tools/html_generator配下にてPython 3.9を使用。
 ```text
 バージョン: 120.0.6099.129（Official Build） （x86_64）
 ```
+
+## 著者のマシン
+
+以下の画像は著者のマシンにおける「このMacについて」のスクリーンショットである。
+<img width="475" alt="スクリーンショット 2024-01-20 14 03 21" src="https://github.com/Ebi-web/graduation-thesis/assets/74973675/377634ac-6e0c-4630-b61f-a5b326ece71c">
